@@ -39,14 +39,18 @@ const handleLogin = async () => {
   try {
     errorMessage.value = '';
     await authStore.login(email.value, password.value);
-    const userRole = authStore.user.role;
+    const userData = authStore.user;
+    if (!userData) throw new Error('user data is null');
+    const userRole = userData.role;
     if (userRole === 'customer') {
       router.push({ name: 'UserDashboard' });
     } else {
       router.push({ name: 'AdminPanel' });
     }
   } catch (error) {
-    errorMessage.value = error.message;
+    if (error instanceof Error) { errorMessage.value = error.message; } else {
+      errorMessage.value = 'Caught an unknown error';
+    }
   }
 };
 
@@ -54,14 +58,18 @@ const handleGoogleAuth = async () => {
   try {
     errorMessage.value = '';
     await authStore.authenticateWithGoogle();
-    const userRole = authStore.user.role;
+    const userData = authStore.user;
+    if (!userData) throw new Error('user data is null');
+    const userRole = userData.role;
     if (userRole === 'customer') {
       router.push({ name: 'UserDashboard' });
     } else {
       router.push({ name: 'AdminPanel' });
     }
   } catch (error) {
-    errorMessage.value = error.message;
+    if (error instanceof Error) { errorMessage.value = error.message; } else {
+      errorMessage.value = 'Caught an unknown error';
+    }
   }
 };
 

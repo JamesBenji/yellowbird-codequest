@@ -2,12 +2,8 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { firebaseApp } from '@/plugins/vuefire';
 import { getAuth } from 'firebase/auth';
 import useAuthStore from '@/stores/auth';
-import BlockedPage from '@/views/BlockedPage.vue';
-import AdminPanel from '@/views/AdminPanel.vue';
 import HomeView from '../views/HomeView.vue';
 import LoginPage from '../views/LoginPage.vue';
-import SignUpPage from '../views/SignUpPage.vue';
-import UserDashboard from '../views/UserDashboard.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,25 +19,49 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/signup',
     name: 'SignUp',
-    component: SignUpPage,
+    component: import('@/views/SignUpPage.vue'),
   },
   {
     path: '/dashboard',
     name: 'UserDashboard',
-    component: UserDashboard,
+    component: import('@/views/UserDashboard.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/admin-panel',
     name: 'AdminPanel',
-    component: AdminPanel,
+    component: import('@/views/AdminPanel.vue'),
     meta: { requiresAuth: true, isAdminOnly: true },
+  },
+  {
+    path: '/cart',
+    name: 'CartPage',
+    component: import('@/views/CartPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/restricted',
     name: 'Restricted',
-    component: BlockedPage,
+    component: import('@/views/BlockedPage.vue'),
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: import('@/views/CheckOut.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: import('@/views/OrdersPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/admin-orders',
+    name: 'AdminOrders',
+    component: import('@/views/AdminOrders.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];
 
