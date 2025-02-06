@@ -63,6 +63,20 @@ const routes: Array<RouteRecordRaw> = [
     component: import('@/views/AdminOrders.vue'),
     meta: { requiresAuth: true, requiresAdmin: true },
   },
+
+  {
+    path: '/admin-dashboard',
+    name: 'AdminDashboard',
+    component: import('@/views/AdminDashboard.vue'),
+    meta: { requiresAdmin: true },
+  },
+
+  {
+    path: '/admin-products',
+    name: 'AdminProducts',
+    component: import('@/views/AdminProducts.vue'),
+    meta: { requiresAdmin: true },
+  },
 ];
 
 const router = createRouter({

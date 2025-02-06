@@ -37,7 +37,7 @@ export type CartItem = Pick<Product, 'id' | 'price' | 'name'> & {
     quantity: number
 }
 
-export type OrderStatus = 'pending' | 'paid' | 'failed';
+export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'shipped' | 'delivered';
 
 export type Order = {
     id: string;

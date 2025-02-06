@@ -15,7 +15,7 @@ import { firebaseApp } from '@/plugins/vuefire';
 import type { CartItem, Order, OrderStatus } from '@/types';
 import { ORDER_COLLECTION, PAYMENT_CALLBACK, SERVER_URL } from '@/config';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv } from 'uuid';
 import useAuthStore from './auth';
 
 const db = getFirestore(firebaseApp);
@@ -30,7 +30,7 @@ const useOrderStore = defineStore('order', {
   actions: {
     getCurrentOrderId() {
       if (!this.currentOrderId) {
-        this.currentOrderId = `ORDER-${uuidv4()}`;
+        this.currentOrderId = `ORDER-${uuidv()}`;
       }
 
       return this.currentOrderId;
@@ -78,13 +78,17 @@ const useOrderStore = defineStore('order', {
     },
 
     async updateOrderStatus(orderId: string, newStatus: OrderStatus) {
-      await updateDoc(doc(db, 'Orders', orderId), { status: newStatus });
+      await updateDoc(doc(db, ORDER_COLLECTION, orderId), { status: newStatus });
       this.orders = this.orders.map(
         (order) => (order.id === orderId ? { ...order, status: newStatus } : order),
       );
     },
 
-    /** ✅ NEW: Handle PesaPal Payment */
+    async cancelOrder(orderId: string) {
+      await updateDoc(doc(db, ORDER_COLLECTION, orderId), { status: 'cancelled' });
+      this.orders = this.orders.map((order) => (order.id === orderId ? { ...order, status: 'cancelled' } : order));
+    },
+
     async processPesaPalPayment(cartItems: CartItem[], totalAmount: number) {
       this.errorMessage = '';
 
