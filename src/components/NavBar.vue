@@ -63,7 +63,7 @@
     </div>
   </nav>
 
-  <div class="w-full bg-gradient-to-r from-pink-400 to-purple-500 py-3 px-4 text-center">
+  <div v-if="authStore.user" class="w-full bg-gradient-to-r from-pink-400 to-purple-500 py-3 px-4 text-center">
     <div class="max-w-7xl mx-auto">
       <p class="text-white font-bold text-xl md:text-xl animate-pulse">
         🌟February Big Sales Are Here!🌠✨

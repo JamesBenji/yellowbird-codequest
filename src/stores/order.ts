@@ -75,7 +75,6 @@ const useOrderStore = defineStore('order', {
         // Step 6: Redirect to PesaPal Payment Page
         window.location.href = response.data.redirect_url;
       } catch (error) {
-        console.error('Payment failed:', error);
         this.errorMessage = 'Payment failed. Please try again.';
       }
     },
