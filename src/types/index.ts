@@ -16,6 +16,7 @@ export type AppUser = {
     createdAt: Date,
     uid: string,
     purchasesRef?: string,
+    address?: string;
 }
 
 export type Product = {
@@ -29,8 +30,8 @@ export type Product = {
     discountPercentage: number;
     category: string;
     stockLevel: StockLevel;
-    currency: string;
-    stockQuantity: string;
+    currency?: string;
+    stockQuantity: number;
 };
 
 export type CartItem = Pick<Product, 'id' | 'price' | 'name'> & {

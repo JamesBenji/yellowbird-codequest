@@ -128,7 +128,8 @@ const addToCart = (product) => {
 
         <!-- Add to Cart / Quantity Controls -->
         <div class="mt-4">
-          <div v-if="!cartStore.cartItems.some((item) => item.id === product.name)">
+          <div v-if="!cartStore.cartItems.some((item) => item.id === product.name)
+          || cartStore.cartItems.find((item) => item.id === product.name)?.quantity < 1">
             <button
               @click="addToCart(product)"
               class="w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700

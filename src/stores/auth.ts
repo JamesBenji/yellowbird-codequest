@@ -161,6 +161,7 @@ const useAuthStore = defineStore('auth', {
             createdAt: new Date(),
             uid: firebaseUser.uid,
             purchasesRef: '',
+            address: '',
           };
 
           await this.saveUser(userData);

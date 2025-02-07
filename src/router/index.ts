@@ -92,6 +92,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/ProfilePage.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/payment-callback',
+    name: 'PaymentCallback',
+    component: () => import('@/views/PaymentCallback.vue'),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({

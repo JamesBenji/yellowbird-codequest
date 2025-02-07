@@ -71,9 +71,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import useNotificationStore from '@/stores/notification';
 import useAuthStore from '../stores/auth';
 
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const email = ref<string>('');
 const password = ref<string>('');
 const router = useRouter();
@@ -81,15 +83,16 @@ const errorMessage = ref<string>('');
 
 const handleLogin = async () => {
   try {
+    notificationStore.addNotification('Signing in...', 'success');
     errorMessage.value = '';
     await authStore.login(email.value, password.value);
     const userData = authStore.user;
     if (!userData) throw new Error('user data is null');
     const userRole = userData.role;
     if (userRole === 'customer') {
-      router.push({ name: 'UserDashboard' });
+      router.push({ name: 'StorePage' });
     } else {
-      router.push({ name: 'AdminPanel' });
+      router.push({ name: 'AdminDashboard' });
     }
   } catch (error) {
     if (error instanceof Error) { errorMessage.value = error.message; } else {
@@ -100,6 +103,7 @@ const handleLogin = async () => {
 
 const handleGoogleAuth = async () => {
   try {
+    notificationStore.addNotification('Signing in...', 'success');
     errorMessage.value = '';
     await authStore.authenticateWithGoogle();
     const userData = authStore.user;

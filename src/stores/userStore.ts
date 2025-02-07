@@ -8,9 +8,11 @@ import useAuthStore from './auth';
 
 const db = getFirestore(firebaseApp);
 
+type UserData = { email: string; firstName: string; lastName: string; address: string }
+
 const useUserStore = defineStore('user', {
   state: () => ({
-    profile: null as { email: string; name: string; address: string } | null,
+    profile: null as UserData | null,
   }),
 
   actions: {
@@ -22,11 +24,13 @@ const useUserStore = defineStore('user', {
       const userDoc = await getDoc(userRef);
 
       if (userDoc.exists()) {
-        this.profile = userDoc.data() as { email: string; name: string; address: string };
+        this.profile = userDoc.data() as UserData;
       }
     },
 
-    async updateUserProfile(updatedData: { name: string; address: string; }) {
+    async updateUserProfile(
+      updatedData: { firstName: string; lastName: string; address: string; },
+    ) {
       const authStore = useAuthStore();
       if (!authStore.user || !this.profile) return;
 

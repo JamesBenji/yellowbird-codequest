@@ -3,6 +3,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { PLATFORM_CURRENCY } from '@/config';
 import useCartStore from '../stores/cart';
 
 const cartStore = useCartStore();
@@ -53,7 +54,7 @@ const router = useRouter();
                 class="py-4 flex justify-between items-center">
               <div class="flex-1">
                 <h3 class="font-medium text-gray-900">{{ item.name }}</h3>
-                <p class="text-gray-500">${{ item.price }} x {{ item.quantity }}</p>
+                <p class="text-gray-500"> {{ PLATFORM_CURRENCY }} {{ item.price }} x {{ item.quantity }}</p>
               </div>
               <button @click="cartStore.removeFromCart(item.id)"
                       class="ml-4 text-sm font-medium text-red-600 hover:text-red-800">
@@ -65,7 +66,7 @@ const router = useRouter();
           <div class="mt-8 border-t border-gray-200 pt-6">
             <div class="flex justify-between text-lg font-medium text-gray-900 mb-6">
               <span>Total</span>
-              <span>${{ cartStore.totalPrice }}</span>
+              <span> {{ PLATFORM_CURRENCY }} {{ cartStore.totalPrice.toLocaleString() }}</span>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4">

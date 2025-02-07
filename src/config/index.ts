@@ -6,7 +6,8 @@ export const PRODUCT_COLLECTION = 'Products';
 export const ORDER_COLLECTION = 'Orders';
 export const CATEGORIES_COLLECTION = 'Categories';
 
-export const SERVER_URL = 'http://localhost:7000';
+// export const SERVER_URL = 'http://localhost:7000';
+export const SERVER_URL = 'https://yellowbird-codequest-backend.onrender.com';
 export const PAYMENT_CALLBACK = `${window.location.origin}/payment-callback`;
 
 export const PESAPAL_IPN = `${window.location.origin}/api/pesapal-ipn`;

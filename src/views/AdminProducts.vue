@@ -1,209 +1,142 @@
 <!-- eslint-disable linebreak-style -->
-
-<!-- <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Admin Product Management</h1>
-
-    <div class="mb-6">
-      <label for="name">
-        <input v-model="name" type="text" placeholder="Name" class="border p-2 w-full mb-2" />
-      </label>
-      <label for="description">
-        <textarea v-model="description"
-        placeholder="Description" class="border p-2 w-full mb-2"></textarea>
-      </label>
-      <label for="price">
-        <input v-model="price" type="number" placeholder="Price" class="border p-2 w-full mb-2" />
-      </label>
-      <label for="imageUrl">
-        Main image
-        <input v-model="imageUrl"
-        type="text" placeholder="Paste image URL" class="border p-2 w-full mb-2" />
-        or upload image file
-        <input type="file" @change="handleFileUpload"
-        class="border p-2 w-full mb-2" accept="image/*"/>
-      </label>
-
-      <label for="galleryImages">
-        Gallery Images:
-        <input type="file" multiple accept="image/*"
-        @change="handleGalleryUpload" class="border p-2 w-full mb-2" />
-      </label>
-      <button @click="addGalleryUrl"
-      class="bg-green-500 text-white p-2 rounded mt-2">+ Add Gallery URL</button>
-
-      <div v-for="(url, index) in galleryUrls" :key="index" class="flex items-center mt-2">
-        <input v-model="galleryUrls[index]" type="text"
-        disabled class="border p-2 w-full" />
-        <button @click="removeGalleryUrl(index)"
-        class="bg-red-500 text-white p-2 ml-2">Remove</button>
-      </div>
-
-      <button @click="addProduct" class="bg-blue-500 text-white p-2 rounded">Add Product</button>
-    </div>
-
-    <h2 class="text-xl font-bold mb-4">Existing Products</h2>
-    <div class="grid grid-cols-3 gap-4">
-      <div v-for="product in productStore.products" :key="product.id" class="border p-4 rounded">
-        <img :src="product.imageUrl"
-        :alt="product.name + 'image'" class="w-full h-40 object-cover rounded mb-2" />
-        <h2 class="text-lg font-semibold">{{ product.name }}</h2>
-        <p>{{ product.description }}</p>
-        <p class="font-bold text-green-600">${{ product.price }}</p>
-
-        <p>Stock: {{ product.stockQuantity }}</p>
-        <button @click="editProduct(product)" class="bg-yellow-500 text-white p-2 rounded mt-2">
-          Edit Stock
-        </button>
-        <button @click="productStore.deleteProduct(product.id)"
-        class="bg-red-500 text-white p-2 rounded mt-2">
-          Delete
-        </button>
-      </div>
-    </div>
-
-    <div v-if="selectedProduct" class="mt-6">
-      <h2 class="text-xl font-bold mb-2">Edit Stock for: {{ selectedProduct.name }}</h2>
-      <label for="newStockQuantity">
-        <input v-model="newStockQuantity" type="number" class="border p-2 mb-2" />
-      </label>
-      <button @click="updateStock" class="bg-green-500 text-white p-2 rounded">Update Stock</button>
-    </div>
-
-    <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Manage Categories</h1>
-
-    <label for="newCategory">
-      <input v-model="newCategory" type="text"
-    placeholder="New Category" class="border p-2 w-full mb-2" />
-    </label>
-    <button :disabled="newCategory ? false : true" @click="productStore.addCategory(newCategory)"
-    class="bg-green-500 text-white p-2 rounded">Add Category</button>
-
-    <h2 class="text-xl font-bold mt-6">Existing Categories</h2>
-    <ul>
-      <li v-for="category in productStore.categories" :key="category">{{ category }}</li>
-    </ul>
-  </div>
-  </div>
-</template> -->
 <template>
-  <div class="p-8 bg-gray-100 min-h-screen">
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Admin Product Management</h1>
+  <div class="max-w-4xl mx-auto p-8 bg-gray-100 min-h-screen">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">Admin Dashboard</h1>
 
-    <!-- Product Form -->
-    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-      <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Product</h2>
+    <div class="grid gap-8">
+      <!-- Product Form -->
+      <form @submit.prevent="addProduct" class="bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Add New Product</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input v-model="name" type="text"
-        placeholder="Product Name" class="border p-3 rounded" />
-        <label for="price">
-          Price
-          <input v-model="price" type="number"
-        placeholder="Price" class="border p-3 rounded" />
-        </label>
-      </div>
+        <div class="space-y-6">
+          <div class="grid md:grid-cols-2 gap-6">
+            <label for="name" class="block">
+              <span class="text-gray-700 mb-2">Product Name *</span>
+              <input v-model="name" type="text" required
+                     class="w-full px-4 py-2 mt-1 border rounded-lg
+                     focus:ring-2 focus:ring-blue-500" />
+            </label>
 
-      <label for="description">
-        <textarea v-model="description"
-      placeholder="Description" class="border p-3 rounded w-full mt-4"></textarea>
-      </label>
+            <label for="price" class="block">
+              <span class="text-gray-700 mb-2">Price *</span>
+              <input v-model="price" type="number" step="0.01" min="0" required
+                     class="w-full px-4 py-2 mt-1 border rounded-lg
+                     focus:ring-2 focus:ring-blue-500" />
+            </label>
+          </div>
 
-      <!-- Image Upload -->
-      <div class="flex flex-wrap justify-between items-center align-middle mt-4 gap-4">
-        <label for="imageUrl" class="flex-1 font-semibold text-gray-700">Main Image &nbsp;
-          <input v-model="imageUrl" type="text" placeholder="Paste image URL"
-          class="border p-3 rounded w-full" />
-        </label>
-        <div class="mt-2 flex items-center">
-          <label for="uploadMainImage"> &nbsp;
-            <input type="file" @change="handleFileUpload" accept="image/*"
-          class="rounded w-full" />
+          <label for="description" class="block">
+            <span class="text-gray-700 mb-2">Description *</span>
+            <textarea v-model="description" rows="4" required
+                      class="w-full px-4 py-2 mt-1 border rounded-lg
+                      focus:ring-2 focus:ring-blue-500"></textarea>
           </label>
-        </div>
-      </div>
 
-      <!-- Gallery Upload -->
-      <div class="mt-4">
-        <!-- <label for="galleryFiles" class="block font-semibold text-gray-700">Gallery Images
-        <input type="file" multiple accept="image/*" @change="handleGalleryUpload"
-        class="border p-3 rounded w-full" />
-      </label> -->
-      <p class="block font-semibold text-gray-700">Gallery images</p>
-      </div>
+          <label for="imageUrl" class="block">
+            <span class="text-gray-700 mb-2">Main Image URL *</span>
+            <input v-model="imageUrl" type="text" required
+                   class="w-full px-4 py-2 mt-1 border rounded-lg
+                   focus:ring-2 focus:ring-blue-500" />
+          </label>
 
-      <div class="mt-4">
-        <button @click="addGalleryUrl"
-        class="bg-green-500 text-white px-4 py-2 rounded">+ Add Gallery URL</button>
-      </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <label for="category" class="block">
+              <span class="text-gray-700 mb-2">Category *</span>
+              <select v-model="category" required
+                      class="w-full px-4 py-2 mt-1 border rounded-lg
+                      focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled>Select a category</option>
+                <option v-for="cat in productStore.categories" :key="cat" :value="cat">
+                  {{ cat }}
+                </option>
+              </select>
+            </label>
 
-      <div v-for="(url, index) in galleryUrls" :key="index"
-      class="flex items-center mt-2">
-        <label for="galleryUrls">
-          <input v-model="galleryUrls[index]" type="text"
-        class="border p-3 w-full rounded" />
-        </label>
-        <button @click="removeGalleryUrl(index)"
-        class="bg-red-500 text-white px-3 py-2 ml-2 rounded">Remove</button>
-      </div>
+            <label for="stockQuantity" class="block">
+              <span class="text-gray-700 mb-2">Stock Quantity *</span>
+              <input v-model.number="stockQuantity" type="number" min="0" required
+                     class="w-full px-4 py-2 mt-1 border rounded-lg
+                     focus:ring-2 focus:ring-blue-500" />
+            </label>
+          </div>
 
-      <button @click="addProduct"
-      class="bg-blue-600 text-white px-6 py-2 rounded mt-4 w-full">Add Product</button>
-    </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <label for="discount" class="block">
+              <span class="text-gray-700 mb-2">Discount</span>
+              <div class="flex items-center gap-3 mt-1">
+                <input v-model="hasDiscount" type="checkbox"
+                       class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                <span>Apply Discount</span>
+              </div>
+            </label>
 
-    <!-- Existing Products -->
-    <h2 class="text-2xl font-bold mb-4 text-gray-800">Existing Products</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div v-for="product in productStore.products" :key="product.id"
-      class="bg-white p-4 rounded-lg shadow-md">
-        <img :src="product.imageUrl" :alt="product.name"
-        class="w-full h-40 object-cover rounded mb-3" />
-        <h3 class="text-lg font-semibold">{{ product.name }}</h3>
-        <p class="text-gray-600">{{ product.description }}</p>
-        <p class="text-green-600 font-bold">${{ product.price }}</p>
-        <p class="text-gray-600">Stock: {{ product.stockQuantity }}</p>
+            <label for="discountPercentage" class="block" v-if="hasDiscount">
+              <span class="text-gray-700 mb-2">Discount Percentage</span>
+              <input v-model.number="discountPercentage" type="number" min="0" max="100"
+                     class="w-full px-4 py-2 mt-1 border rounded-lg
+                     focus:ring-2 focus:ring-blue-500" />
+            </label>
+          </div>
 
-        <div class="flex space-x-2 mt-3">
-          <button @click="editProduct(product)"
-          class="bg-yellow-500 text-white px-4 py-2 rounded">Edit Stock</button>
-          <button @click="productStore.deleteProduct(product.id)"
-          class="bg-red-500 text-white px-4 py-2 rounded">
-            Delete
+          <!-- Gallery Section -->
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-medium text-gray-800">Gallery Images</h3>
+              <button @click.prevent="addGalleryUrl" type="button"
+                      class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                Add Image URL
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <label for="galleryUrls" v-for="(url, index) in galleryUrls" :key="index"
+              class="flex gap-3">
+                <input v-model="galleryUrls[index]" type="text"
+                       class="flex-1 px-4 py-2 border rounded-lg
+                       focus:ring-2 focus:ring-blue-500" />
+                <button @click.prevent="removeGalleryUrl(index)" type="button"
+                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                  Remove
+                </button>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" :disabled="isAddingProduct"
+                  class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ isAddingProduct ? 'Adding...' : 'Add Product' }}
           </button>
         </div>
-      </div>
-    </div>
+      </form>
 
-    <!-- Stock Editing -->
-    <div v-if="selectedProduct" class="mt-6 bg-white p-6 rounded-lg shadow-md">
-      <h2 class="text-xl font-bold text-gray-800 mb-2">
-        Edit Stock for: {{ selectedProduct.name }}</h2>
-      <label for="stockQuantity">
-        <input v-model="newStockQuantity" type="number"
-      class="border p-3 rounded w-full mb-2" />
-      </label>
-      <button @click="updateStock"
-      class="bg-green-500 text-white px-6 py-2 rounded">Update Stock</button>
-    </div>
+      <!-- Category Management -->
+      <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Categories</h2>
 
-    <!-- Category Management -->
-    <div class="bg-white p-6 rounded-lg shadow-md mt-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">Manage Categories</h2>
-      <div class="flex space-x-2">
-        <label for="newCategory">
-          <input v-model="newCategory" type="text" placeholder="New Category"
-        class="border p-3 rounded w-full" />
-        </label>
-        <button :disabled="!newCategory" @click="productStore.addCategory(newCategory)"
-        class="bg-green-500 text-white px-6 py-2 rounded">
-          Add Category
-        </button>
+        <form @submit.prevent="addCategory" class="flex gap-4 mb-6">
+          <label for="newCategory">
+            <input v-model="newCategory" type="text" required
+                 placeholder="New category name"
+                 class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </label>
+          <button type="submit" :disabled="!newCategory || isAddingCategory"
+                  class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ isAddingCategory ? 'Adding...' : 'Add' }}
+          </button>
+        </form>
+
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="font-medium text-gray-700 mb-3">Existing Categories</h3>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="category in productStore.categories" :key="category"
+                  class="px-3 py-1 bg-gray-200 rounded-full text-sm">
+              {{ category }}
+            </span>
+          </div>
+        </div>
       </div>
-      <h3 class="text-xl font-bold mt-6">Existing Categories</h3>
-      <ul class="list-disc ml-6 mt-2 text-gray-700">
-        <li v-for="category in productStore.categories" :key="category">{{ category }}</li>
-      </ul>
     </div>
   </div>
 </template>
@@ -211,77 +144,83 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Product } from '@/types';
+import type { Product } from '@/types';
+import useNotificationStore from '@/stores/notification';
 import useProductStore from '../stores/product';
 
 const productStore = useProductStore();
-const selectedProduct = ref<Product | null>(null);
-const newStockQuantity = ref(0);
+const notificationStore = useNotificationStore();
+
 const name = ref('');
 const description = ref('');
-const price = ref(0);
+const price = ref<number>(0);
 const imageUrl = ref('');
-const newCategory = ref('');
-// const selectedFile = ref<File | null>(null);
+const category = ref('');
+const stockQuantity = ref<number>(0);
+const hasDiscount = ref(false);
+const discountPercentage = ref<number>(0);
 const galleryUrls = ref<string[]>([]);
-const selectedGalleryFiles = ref<File[]>([]);
+const newCategory = ref('');
+const isAddingProduct = ref(false);
+const isAddingCategory = ref(false);
 
 onMounted(() => {
+  notificationStore.addNotification('Loading...', 'success');
   productStore.fetchProducts();
   productStore.fetchCategories();
 });
 
-const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (!target.files) return;
-  productStore.uploadImage(target.files[0]);
-};
-
-const handleGalleryUpload = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (!target.files) return;
-  selectedGalleryFiles.value = Array.from(target.files);
-  const urls = await Promise.all(
-    selectedGalleryFiles.value.map((file) => productStore.uploadImage(file)),
-  );
-  galleryUrls.value.push(...urls);
-};
-
-const addGalleryUrl = () => {
-  galleryUrls.value.push('');
-};
-
-const removeGalleryUrl = (index: number) => {
-  galleryUrls.value.splice(index, 1);
-};
+const addGalleryUrl = () => galleryUrls.value.push('');
+const removeGalleryUrl = (index: number) => galleryUrls.value.splice(index, 1);
 
 const addProduct = async () => {
-  await productStore.addProduct({
-    name: name.value,
-    description: description.value,
-    price: price.value,
-    imageUrl: imageUrl.value,
-  } as Omit<Product, 'id'>);
+  try {
+    isAddingProduct.value = true;
+    const productData: Omit<Product, 'id'> = {
+      name: name.value,
+      description: description.value,
+      price: price.value,
+      imageUrl: imageUrl.value,
+      category: category.value,
+      stockQuantity: stockQuantity.value,
+      stockLevel: stockQuantity.value > 0 ? 'in_stock' : 'out_of_stock',
+      hasDiscount: hasDiscount.value,
+      discountPercentage: hasDiscount.value ? discountPercentage.value : 0,
+      galleryUrls: galleryUrls.value.filter((url) => url.trim() !== ''),
+    };
 
-  name.value = '';
-  imageUrl.value = '';
-  description.value = '';
-  price.value = 0;
+    await productStore.addProduct(productData);
+
+    // Reset form
+    name.value = '';
+    description.value = '';
+    price.value = 0;
+    imageUrl.value = '';
+    category.value = '';
+    stockQuantity.value = 0;
+    hasDiscount.value = false;
+    discountPercentage.value = 0;
+    galleryUrls.value = [];
+
+    notificationStore.addNotification('Product added successfully!', 'success');
+  } catch (error) {
+    notificationStore.addNotification('Error adding product', 'error');
+  } finally {
+    isAddingProduct.value = false;
+  }
 };
 
-const editProduct = (product: Product) => {
-  selectedProduct.value = product;
-  newStockQuantity.value = parseInt(product.stockQuantity, 10);
-};
-
-const updateStock = async () => {
-  if (selectedProduct.value) {
-    await productStore.updateProduct(selectedProduct.value.id, {
-      stockQuantity: newStockQuantity.value.toString(),
-      stockLevel: newStockQuantity.value > 5 ? 'in_stock' : 'low_stock',
-    });
-    selectedProduct.value = null;
-    newStockQuantity.value = 0;
+const addCategory = async () => {
+  try {
+    isAddingCategory.value = true;
+    await productStore.addCategory(newCategory.value);
+    newCategory.value = '';
+    notificationStore.addNotification('Category added successfully!', 'success');
+  } catch (error) {
+    notificationStore.addNotification('Error adding category', 'error');
+  } finally {
+    isAddingCategory.value = false;
   }
 };
 </script>
+<!-- eslint-disable linebreak-style -->

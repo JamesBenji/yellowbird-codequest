@@ -83,7 +83,8 @@ const addToCart = () => {
             <p class="text-gray-600 leading-relaxed">{{ product.description }}</p>
           </div>
 
-          <div class="prose max-w-none">
+          <div v-if="product.galleryUrls"
+            class="prose max-w-none">
             <h2 class="text-xl font-semibold text-gray-800 mb-2">Gallery</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
               <img v-for="url in product.galleryUrls" :key="url" :src="url"
@@ -95,7 +96,7 @@ const addToCart = () => {
 
           <div class="w-full max-w-lg">
             <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                {{ PLATFORM_CURRENCY }} {{ product.price }}
+                {{ PLATFORM_CURRENCY }} {{ product.price.toLocaleString() }}
             </h2>
 
             <div v-if="authStore.user?.role === 'admin'"
@@ -109,7 +110,7 @@ const addToCart = () => {
             </div>
 
             <button v-else @click="addToCart"
-                    class="w-full bg-blue-500 hover:bg-blue-600
+                    class="w-full bg-gray-800 hover:bg-gray-600 my-2
                     text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
               Add to Cart
             </button>
