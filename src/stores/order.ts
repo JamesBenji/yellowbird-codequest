@@ -17,8 +17,10 @@ import { ORDER_COLLECTION, PAYMENT_CALLBACK, SERVER_URL } from '@/config';
 import axios from 'axios';
 import { v4 as uuidv } from 'uuid';
 import useAuthStore from './auth';
+import useNotificationStore from './notification';
 
 const db = getFirestore(firebaseApp);
+const notificationStore = useNotificationStore();
 
 const useOrderStore = defineStore('order', {
   state: () => ({
@@ -34,59 +36,6 @@ const useOrderStore = defineStore('order', {
       }
 
       return this.currentOrderId;
-    },
-    async placeOrder(items: CartItem[], totalAmount: number, currency: string) {
-      const authStore = useAuthStore();
-      if (!authStore.user) throw new Error('User is not authenticated.');
-
-      const orderData = {
-        id: this.getCurrentOrderId(),
-        userId: authStore.user.uid,
-        items,
-        totalAmount,
-        currency,
-        status: 'pending',
-        createdAt: Timestamp.now(),
-      };
-
-      await setDoc(
-        doc(db, ORDER_COLLECTION, this.getCurrentOrderId()),
-        orderData,
-      );
-      this.orders.push({ ...orderData } as Order);
-    },
-
-    async fetchOrders() {
-      const authStore = useAuthStore();
-      if (!authStore.user) return;
-
-      const q = query(collection(db, ORDER_COLLECTION), where('userId', '==', authStore.user.uid));
-      const querySnapshot = await getDocs(q);
-
-      this.orders = querySnapshot.docs.map((document) => ({
-        id: document.id,
-        ...document.data(),
-      })) as Order[];
-    },
-
-    async fetchAllOrders() {
-      const querySnapshot = await getDocs(collection(db, 'Orders'));
-      this.orders = querySnapshot.docs.map((document) => ({
-        id: document.id,
-        ...document.data(),
-      })) as Order[];
-    },
-
-    async updateOrderStatus(orderId: string, newStatus: OrderStatus) {
-      await updateDoc(doc(db, ORDER_COLLECTION, orderId), { status: newStatus });
-      this.orders = this.orders.map(
-        (order) => (order.id === orderId ? { ...order, status: newStatus } : order),
-      );
-    },
-
-    async cancelOrder(orderId: string) {
-      await updateDoc(doc(db, ORDER_COLLECTION, orderId), { status: 'cancelled' });
-      this.orders = this.orders.map((order) => (order.id === orderId ? { ...order, status: 'cancelled' } : order));
     },
 
     async processPesaPalPayment(cartItems: CartItem[], totalAmount: number) {
@@ -130,6 +79,70 @@ const useOrderStore = defineStore('order', {
         this.errorMessage = 'Payment failed. Please try again.';
       }
     },
+
+    async placeOrder(items: CartItem[], totalAmount: number, currency: string) {
+      const authStore = useAuthStore();
+      if (!authStore.user) throw new Error('User is not authenticated.');
+
+      const orderData = {
+        id: this.getCurrentOrderId(),
+        userId: authStore.user.uid,
+        items,
+        totalAmount,
+        currency,
+        status: 'pending',
+        createdAt: Timestamp.now(),
+      };
+
+      await setDoc(
+        doc(db, ORDER_COLLECTION, this.getCurrentOrderId()),
+        orderData,
+      );
+      this.orders.push({ ...orderData } as Order);
+
+      try {
+        await this.processPesaPalPayment(items, totalAmount);
+      } catch (error: unknown) {
+        if (error instanceof Error) { throw new Error(error.message); } else {
+          throw new Error('Unknown error when processing payment.');
+        }
+      }
+    },
+
+    async fetchOrders() {
+      const authStore = useAuthStore();
+      if (!authStore.user) return;
+
+      const q = query(collection(db, ORDER_COLLECTION), where('userId', '==', authStore.user.uid));
+      const querySnapshot = await getDocs(q);
+
+      this.orders = querySnapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+      })) as Order[];
+    },
+
+    async fetchAllOrders() {
+      const querySnapshot = await getDocs(collection(db, 'Orders'));
+      this.orders = querySnapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+      })) as Order[];
+    },
+
+    async updateOrderStatus(orderId: string, newStatus: OrderStatus) {
+      await updateDoc(doc(db, ORDER_COLLECTION, orderId), { status: newStatus });
+      this.orders = this.orders.map(
+        (order) => (order.id === orderId ? { ...order, status: newStatus } : order),
+      );
+      notificationStore.addNotification(`Order ${orderId} updated to ${newStatus}`, 'success');
+    },
+
+    async cancelOrder(orderId: string) {
+      await updateDoc(doc(db, ORDER_COLLECTION, orderId), { status: 'cancelled' });
+      this.orders = this.orders.map((order) => (order.id === orderId ? { ...order, status: 'cancelled' } : order));
+    },
+
   },
 });
 

@@ -1,14 +1,15 @@
 /* eslint-disable linebreak-style */
-/* eslint-disable max-len */
-/**
- * Auth store to handle authentication state
- */
-
 import { defineStore } from 'pinia';
 import {
-  signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  browserLocalPersistence,
+  setPersistence,
+  onAuthStateChanged,
 } from 'firebase/auth';
 import { firebaseApp } from '@/plugins/vuefire';
 import { AppUser, Gender } from '@/types';
@@ -17,7 +18,7 @@ import {
   doc, getDoc, getFirestore, setDoc,
 } from 'firebase/firestore';
 
-type User = AppUser | null
+type User = AppUser | null;
 
 const firestore = getFirestore(firebaseApp);
 
@@ -55,8 +56,15 @@ const useAuthStore = defineStore('auth', {
       }
     },
 
-    async signUp(email: string, password: string, firstName: string, lastName: string, gender: Gender) {
+    async signUp(
+      email: string,
+      password: string,
+      firstName: string,
+      lastName: string,
+      gender: Gender,
+    ) {
       const auth = this.getAuthInstance();
+      await setPersistence(auth, browserLocalPersistence);
       if (!auth) throw new Error('Firebase Authentication is not initialized.');
 
       try {
@@ -74,6 +82,7 @@ const useAuthStore = defineStore('auth', {
         };
 
         await this.saveUser(userData);
+        localStorage.setItem('userAuth', JSON.stringify(userData));
       } catch (error: unknown) {
         throw this.handleFirebaseError(error);
       }
@@ -81,12 +90,12 @@ const useAuthStore = defineStore('auth', {
 
     async login(email: string, password: string) {
       const auth = this.getAuthInstance();
+      await setPersistence(auth, browserLocalPersistence);
       if (!auth) throw new Error('Firebase authentication is not initialized');
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const firebaseUser = userCredential.user;
-
         this.user = await this.getUser(firebaseUser.uid);
       } catch (error: unknown) {
         throw this.handleFirebaseError(error);
@@ -100,13 +109,39 @@ const useAuthStore = defineStore('auth', {
       try {
         await signOut(auth);
         this.user = null;
+        localStorage.removeItem('userAuth');
       } catch (error: unknown) {
         throw new Error('Log Out failed. Please try again.');
       }
     },
 
+    persistUserAuth() {
+      const auth = this.getAuthInstance();
+      const storedUser = localStorage.getItem('userAuth');
+      if (storedUser) {
+        this.user = JSON.parse(storedUser);
+      }
+      if (!auth) return;
+
+      onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          const user = await this.getUser(firebaseUser.uid);
+          localStorage.setItem('userAuth', JSON.stringify(user));
+          this.user = user;
+        } else {
+          this.user = null;
+          localStorage.removeItem('userAuth');
+        }
+      });
+    },
+
+    initialize() {
+      this.persistUserAuth();
+    },
+
     async authenticateWithGoogle() {
       const auth = this.getAuthInstance();
+      await setPersistence(auth, browserLocalPersistence);
       if (!auth) throw new Error('Firebase Authentication is not initialized.');
 
       const provider = new GoogleAuthProvider();
@@ -138,22 +173,6 @@ const useAuthStore = defineStore('auth', {
       }
     },
 
-    // async signInWithGoogleProvider() {
-    //   const auth = this.getAuthInstance();
-    //   if (!auth) throw new Error('Firebase Authentication is not initialized.');
-
-    //   const provider = new GoogleAuthProvider();
-
-    //   try {
-    //     const result = await signInWithPopup(auth, provider);
-    //     const firebaseUser = result.user;
-
-    //     this.user = await this.getUser(firebaseUser.uid);
-    //   } catch (error: unknown) {
-    //     throw this.handleFirebaseError(error);
-    //   }
-    // },
-
     handleFirebaseError(error: unknown): Error {
       if (error instanceof Error) {
         const firebaseError = error as { code?: string };
@@ -178,5 +197,8 @@ const useAuthStore = defineStore('auth', {
     },
   },
 });
+
+// const authStore = useAuthStore();
+// authStore.initialize();
 
 export default useAuthStore;

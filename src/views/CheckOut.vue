@@ -14,7 +14,10 @@
           - ${{ item.price }} x {{ item.quantity }}
         </li>
       </ul>
-      <p class="mt-4 font-bold">Total: ${{ cartStore.totalPrice }}</p>
+      <p class="mt-4"><b>Subtotal:</b> ${{ subtotal.toFixed(2) }}</p>
+      <p><b>VAT (18%):</b> ${{ vatAmount.toFixed(2) }}</p>
+      <p><b>Total:</b> ${{ totalAmount.toFixed(2) }}</p>
+      <!-- <p class="mt-4 font-bold">Total: ${{ cartStore.totalPrice }}</p> -->
 
       <label for="currency" class="block mt-2">Currency:
       <select v-model="currency" class="border p-2 w-full">
@@ -33,9 +36,10 @@
 <!-- eslint-disable linebreak-style -->
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import PesaPalPay from '@/components/PesaPalPay.vue';
+import { VAT_RATE } from '@/config';
 import useCartStore from '../stores/cart';
 import useOrderStore from '../stores/order';
 
@@ -45,6 +49,10 @@ const router = useRouter();
 const currency = ref('UGX');
 const errorMessage = ref<string>('');
 
+const subtotal = computed(() => cartStore.totalPrice);
+const vatAmount = computed(() => subtotal.value * VAT_RATE);
+const totalAmount = computed(() => subtotal.value + vatAmount.value);
+
 const placeOrder = async (): Promise<void> => {
   if (cartStore.cartItems.length === 0) {
     errorMessage.value = 'Your cart is empty!';
@@ -52,7 +60,7 @@ const placeOrder = async (): Promise<void> => {
   }
 
   try {
-    await orderStore.placeOrder(cartStore.cartItems, cartStore.totalPrice, currency.value);
+    await orderStore.placeOrder(cartStore.cartItems, totalAmount.value, currency.value);
     cartStore.clearCart();
     router.push('/orders');
   } catch (error) {

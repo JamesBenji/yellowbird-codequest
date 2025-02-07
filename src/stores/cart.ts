@@ -27,10 +27,17 @@ const useCartStore = defineStore('cart', {
       this.cartItems = this.cartItems.filter((item) => item.id !== id);
     },
 
-    updateQuantity(id: string, quantity: number) {
+    increaseQuantity(id: string) {
       const item = this.cartItems.find((cartItem) => cartItem.id === id);
-      if (item && quantity > 0) {
-        item.quantity = quantity;
+      if (item && item.quantity > 0) {
+        item.quantity += 1;
+      }
+    },
+
+    decreaseQuantity(id: string) {
+      const item = this.cartItems.find((cartItem) => cartItem.id === id);
+      if (item && item.quantity > 0) {
+        item.quantity -= 1;
       }
     },
 

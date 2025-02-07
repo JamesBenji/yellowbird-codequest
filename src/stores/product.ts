@@ -10,15 +10,23 @@ import {
   deleteDoc,
   doc,
 } from 'firebase/firestore';
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
 import { firebaseApp } from '@/plugins/vuefire';
 import { Product } from '@/types';
-import { PRODUCT_COLLECTION } from '@/config';
+import { CATEGORIES_COLLECTION, PRODUCT_COLLECTION } from '@/config';
 
 const db = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 
 const useProductStore = defineStore('product', {
   state: () => ({
     products: [] as Product[],
+    categories: [] as string[],
     searchQuery: '',
     selectedCategory: 'all',
     priceRange: [0, 10000],
@@ -56,6 +64,38 @@ const useProductStore = defineStore('product', {
     async deleteProduct(id: string) {
       await deleteDoc(doc(db, PRODUCT_COLLECTION, id));
       await this.fetchProducts();
+    },
+
+    async uploadImage(file: File): Promise<string> {
+      const storageRef = ref(storage, `products/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          null,
+          (error) => reject(error),
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          },
+        );
+      });
+    },
+
+    async getProductCategories() {
+      if (this.categories.length < 1) await this.fetchCategories();
+      return this.categories;
+    },
+
+    async fetchCategories() {
+      const querySnapshot = await getDocs(collection(db, CATEGORIES_COLLECTION));
+      this.categories = querySnapshot.docs.map((d) => d.id);
+    },
+
+    async addCategory(name: string) {
+      await addDoc(collection(db, CATEGORIES_COLLECTION), { name });
+      await this.fetchCategories();
     },
 
     setSearchQuery(query: string) {

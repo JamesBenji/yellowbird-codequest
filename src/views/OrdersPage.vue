@@ -27,7 +27,7 @@
 
 <script setup>
 import { onMounted } from 'vue';
-import { useOrderStore } from '../stores/order';
+import useOrderStore from '../stores/order';
 
 const orderStore = useOrderStore();
 
