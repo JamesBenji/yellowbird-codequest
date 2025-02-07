@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkcodequest"]=self["webpackChunkcodequest"]||[]).push([[861],{9242:function(e,u,n){n.r(u),n.d(u,{default:function(){return a}});var t=n(6768);function r(e,u){return(0,t.uX)(),(0,t.CE)("div",null,u[0]||(u[0]=[(0,t.Lk)("h2",null," Page access request denied. You are not allowed to view this route. ",-1)]))}var s=n(1241);const c={},o=(0,s.A)(c,[["render",r]]);var a=o}}]);
+//# sourceMappingURL=861.605824bd.js.map
