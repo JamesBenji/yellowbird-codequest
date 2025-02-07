@@ -83,7 +83,7 @@
           class="w-full bg-blue-500 text-white py-3 rounded-lg mt-8
           hover:bg-blue-600 transition-colors duration-200"
         >
-          Place Order
+          {{ clicked ? 'Placing order' : 'Place Order' }}
         </button>
 
         <!-- Error Message -->
@@ -111,6 +111,7 @@ const router = useRouter();
 const currency = ref('UGX');
 const errorMessage = ref<string>('');
 const notificationStore = useNotificationStore();
+const clicked = ref<boolean>(false);
 
 const subtotal = computed(() => cartStore.totalPrice);
 const vatAmount = computed(() => subtotal.value * VAT_RATE);
@@ -123,8 +124,10 @@ const placeOrder = async (): Promise<void> => {
   }
 
   try {
+    clicked.value = true;
     notificationStore.addNotification('Processing order...', 'success');
     await orderStore.placeOrder(cartStore.cartItems, totalAmount.value, currency.value);
+    notificationStore.addNotification('Preparing to re-route you...', 'success');
     cartStore.clearCart();
     router.push('/orders');
   } catch (error) {
@@ -135,6 +138,8 @@ const placeOrder = async (): Promise<void> => {
       errorMessage.value = 'Caught an unknown error';
       notificationStore.addNotification('Unknown error', 'error');
     }
+  } finally {
+    clicked.value = false;
   }
 };
 </script>
